@@ -1,9 +1,38 @@
 
-import { Link } from "react-router-dom";
-import { Search, ChefHat } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Search, ChefHat, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const Navbar = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  
+  // Check if user is logged in on component mount
+  useEffect(() => {
+    const authToken = localStorage.getItem('culinaryAuthToken');
+    const email = localStorage.getItem('culinaryUserEmail');
+    if (authToken) {
+      setIsLoggedIn(true);
+      setUserEmail(email || "");
+    }
+  }, []);
+  
+  const handleLogout = () => {
+    localStorage.removeItem('culinaryAuthToken');
+    localStorage.removeItem('culinaryUserEmail');
+    setIsLoggedIn(false);
+    setUserEmail("");
+    toast({
+      title: "Déconnexion réussie",
+      description: "À bientôt sur Explorateur Culinaire !",
+    });
+    navigate('/');
+  };
+
   return (
     <nav className="bg-white shadow-sm py-4">
       <div className="container mx-auto px-4 flex justify-between items-center">
@@ -47,9 +76,29 @@ const Navbar = () => {
             <Search className="h-5 w-5" />
           </Button>
           
-          <Button className="hidden md:flex bg-culinary-green hover:bg-culinary-sage text-white">
-            Connexion
-          </Button>
+          {isLoggedIn ? (
+            <div className="hidden md:flex items-center space-x-3">
+              <div className="flex items-center">
+                <UserRound className="h-5 w-5 mr-1 text-culinary-brown" />
+                <span className="text-sm text-culinary-brown font-medium">{userEmail}</span>
+              </div>
+              <Button 
+                onClick={handleLogout}
+                variant="outline"
+                className="border-culinary-terracotta text-culinary-terracotta hover:bg-culinary-terracotta/10"
+              >
+                Déconnexion
+              </Button>
+            </div>
+          ) : (
+            <Button 
+              as="Link"
+              onClick={() => navigate('/login')}
+              className="hidden md:flex bg-culinary-green hover:bg-culinary-sage text-white"
+            >
+              Connexion
+            </Button>
+          )}
         </div>
       </div>
     </nav>

@@ -10,6 +10,7 @@ import CategoryPage from "./pages/CategoryPage";
 import CategoriesPage from "./pages/CategoriesPage";
 import PreferencesPage from "./pages/PreferencesPage";
 import RecommendationsPage from "./pages/RecommendationsPage";
+import LoginPage from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/preferences" element={<PreferencesPage />} />
           <Route path="/recommendations" element={<RecommendationsPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
