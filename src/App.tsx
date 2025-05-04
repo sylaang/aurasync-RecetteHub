@@ -7,6 +7,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import RecipeDetail from "./pages/RecipeDetail";
 import CategoryPage from "./pages/CategoryPage";
+import CategoriesPage from "./pages/CategoriesPage";
+import PreferencesPage from "./pages/PreferencesPage";
+import RecommendationsPage from "./pages/RecommendationsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +24,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/recipe/:id" element={<RecipeDetail />} />
           <Route path="/category/:id" element={<CategoryPage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/preferences" element={<PreferencesPage />} />
+          <Route path="/recommendations" element={<RecommendationsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

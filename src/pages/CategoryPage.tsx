@@ -13,16 +13,19 @@ const CategoryPage = () => {
   const category = categories.find((cat) => cat.id === id);
   
   // Filter recipes that belong to this category
-  // This is a simple implementation, in a real app we would have proper category assignment
-  const categoryRecipes = recipes.filter((recipe) => 
-    // For demo purposes, let's just filter some recipes for each category
-    (id === 'appetizers' && recipe.id % 5 === 0) ||
-    (id === 'main-dishes' && recipe.id % 5 === 1) ||
-    (id === 'desserts' && recipe.id % 5 === 2) ||
-    (id === 'drinks' && recipe.id % 5 === 3) ||
-    (id === 'vegetarian' && recipe.vegetarian) ||
-    (id === 'quick' && recipe.preparationTime < 30)
-  );
+  const categoryRecipes = recipes.filter((recipe) => {
+    // For demo purposes, let's filter recipes for each category
+    if (!id) return false;
+    
+    if (id === 'appetizers' && recipe.id.includes('salade')) return true;
+    if (id === 'main-dishes' && recipe.id.includes('coq')) return true;
+    if (id === 'desserts' && recipe.id.includes('tarte')) return true;
+    if (id === 'drinks' && recipe.id.includes('mousse')) return true;
+    if (id === 'vegetarian' && recipe.dietaryInfo.vegetarian) return true;
+    if (id === 'quick' && recipe.prepTime < 30) return true;
+    
+    return false;
+  });
 
   if (!category) {
     return (
