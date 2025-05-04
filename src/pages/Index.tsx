@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, ChefHat } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -18,6 +18,29 @@ const Index = () => {
     glutenFree: false,
     dairyFree: false,
   });
+
+  // Load saved preferences from localStorage when component mounts
+  useEffect(() => {
+    const savedPreferences = localStorage.getItem('culinaryPreferences');
+    if (savedPreferences) {
+      try {
+        setUserPreferences(JSON.parse(savedPreferences));
+      } catch (e) {
+        console.error('Failed to parse saved preferences', e);
+      }
+    }
+  }, []);
+
+  const handleSavePreferences = (preferences: UserPreferences) => {
+    setUserPreferences(preferences);
+    
+    // Save to localStorage
+    try {
+      localStorage.setItem('culinaryPreferences', JSON.stringify(preferences));
+    } catch (e) {
+      console.error('Failed to save preferences', e);
+    }
+  };
 
   const featuredRecipes = getFeaturedRecipes();
   const recommendedRecipes = getRecommendedRecipes(userPreferences);
