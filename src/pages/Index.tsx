@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, ChefHat } from 'lucide-react';
@@ -7,7 +6,7 @@ import FeaturedRecipe from '@/components/FeaturedRecipe';
 import RecipeCard from '@/components/RecipeCard';
 import CategoryList from '@/components/CategoryList';
 import PreferenceSelector from '@/components/PreferenceSelector';
-import { recipes, getFeaturedRecipes, getRecommendedRecipes } from '@/data/recipes';
+import { getAllRecipes, getFeaturedRecipes, getRecommendedRecipes, recipes } from '@/data/recipes';
 import { Button } from '@/components/ui/button';
 import { UserPreferences } from '@/components/PreferenceSelector';
 
@@ -19,22 +18,53 @@ const Index = () => {
     dairyFree: false,
   });
 
-  // Load saved preferences from localStorage when component mounts
+  const [recommendedRecipes, setRecommendedRecipes] = useState([]);
+  const [featuredRecipes, setFeaturedRecipes] = useState([]);
+  const [allRecipes, setAllRecipes] = useState([]);
+
+  // Charger les préférences enregistrées
   useEffect(() => {
     const savedPreferences = localStorage.getItem('culinaryPreferences');
     if (savedPreferences) {
       try {
-        setUserPreferences(JSON.parse(savedPreferences));
+        const parsed = JSON.parse(savedPreferences);
+        setUserPreferences(parsed);
       } catch (e) {
         console.error('Failed to parse saved preferences', e);
       }
     }
   }, []);
 
+  // Charger les recettes en fonction des préférences
+  useEffect(() => {
+    const fetchRecommended = async () => {
+      try {
+        const recipes = await getRecommendedRecipes(userPreferences);
+        setRecommendedRecipes(recipes);
+      } catch (e) {
+        console.error('Erreur lors du chargement des recettes recommandées', e);
+      }
+    };
+    fetchRecommended();
+  }, [userPreferences]);
+
+  // Charger les recettes à l'initialisation
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const featured = await getFeaturedRecipes();
+        const all = await getAllRecipes();
+        setFeaturedRecipes(featured);
+        setAllRecipes(all);
+      } catch (e) {
+        console.error('Erreur lors du chargement initial des recettes', e);
+      }
+    };
+    fetchInitialData();
+  }, []);
+
   const handleSavePreferences = (preferences: UserPreferences) => {
     setUserPreferences(preferences);
-    
-    // Save to localStorage
     try {
       localStorage.setItem('culinaryPreferences', JSON.stringify(preferences));
     } catch (e) {
@@ -42,63 +72,51 @@ const Index = () => {
     }
   };
 
-  const featuredRecipes = getFeaturedRecipes();
-  const recommendedRecipes = getRecommendedRecipes(userPreferences);
-
   return (
     <div className="min-h-screen bg-culinary-beige/30">
       <Navbar />
-      
+
       {/* Hero section with featured recipe */}
       <section className="container mx-auto px-4 py-8">
         {featuredRecipes.length > 0 && <FeaturedRecipe recipe={featuredRecipes[0]} />}
       </section>
-      
+
       {/* Categories section */}
       <section className="container mx-auto px-4 py-12">
         <div className="flex justify-between items-center mb-6">
           <h2 className="font-serif text-2xl md:text-3xl font-bold text-culinary-brown">
             Explorer par catégories
           </h2>
-          <Link 
-            to="/categories" 
-            className="flex items-center text-culinary-terracotta hover:text-culinary-brown transition-colors"
-          >
+          <Link to="/categories" className="flex items-center text-culinary-terracotta hover:text-culinary-brown transition-colors">
             Voir tout <ChevronRight className="h-4 w-4 ml-1" />
           </Link>
         </div>
         <CategoryList />
       </section>
-      
+
       {/* Popular recipes */}
       <section className="container mx-auto px-4 py-12">
         <div className="flex justify-between items-center mb-6">
           <h2 className="font-serif text-2xl md:text-3xl font-bold text-culinary-brown">
             Recettes populaires
           </h2>
-          <Link 
-            to="/recipes" 
-            className="flex items-center text-culinary-terracotta hover:text-culinary-brown transition-colors"
-          >
+          <Link to="/recipes" className="flex items-center text-culinary-terracotta hover:text-culinary-brown transition-colors">
             Voir tout <ChevronRight className="h-4 w-4 ml-1" />
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recipes.slice(0, 3).map((recipe) => (
+          {allRecipes.slice(0, 3).map((recipe) => (
             <RecipeCard key={recipe.id} recipe={recipe} />
           ))}
         </div>
       </section>
-      
+
       {/* Preferences and recommendations section */}
       <section className="bg-white py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <PreferenceSelector 
-              initialPreferences={userPreferences}
-              onSavePreferences={setUserPreferences}
-            />
-            
+            <PreferenceSelector initialPreferences={userPreferences} onSavePreferences={handleSavePreferences} />
+
             <div>
               <div className="flex items-center mb-6">
                 <ChefHat className="h-6 w-6 text-culinary-terracotta mr-2" />
@@ -106,25 +124,14 @@ const Index = () => {
                   Vos recommandations
                 </h2>
               </div>
-              
+
               {recommendedRecipes.length > 0 ? (
                 <div className="space-y-4">
                   {recommendedRecipes.map((recipe) => (
-                    <RecipeCard 
-                      key={recipe.id} 
-                      recipe={recipe}
-                      className="max-w-none" 
-                    />
+                    <RecipeCard key={recipe.id} recipe={recipe} className="max-w-none" />
                   ))}
-                  
-                  <Button 
-                    asChild
-                    variant="outline" 
-                    className="mt-4 border-culinary-terracotta text-culinary-terracotta hover:bg-culinary-terracotta hover:text-white"
-                  >
-                    <Link to="/recommendations">
-                      Voir plus de recommandations
-                    </Link>
+                  <Button asChild variant="outline" className="mt-4 border-culinary-terracotta text-culinary-terracotta hover:bg-culinary-terracotta hover:text-white">
+                    <Link to="/recommendations">Voir plus de recommandations</Link>
                   </Button>
                 </div>
               ) : (
@@ -138,7 +145,7 @@ const Index = () => {
           </div>
         </div>
       </section>
-      
+
       {/* Footer */}
       <footer className="bg-culinary-brown text-white py-12">
         <div className="container mx-auto px-4">
@@ -152,8 +159,9 @@ const Index = () => {
                 Découvrez des recettes adaptées à vos préférences et contraintes alimentaires.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+              {/* liens footer */}
               <div>
                 <h3 className="font-serif text-lg font-semibold mb-4">Explorer</h3>
                 <ul className="space-y-2">
@@ -162,7 +170,6 @@ const Index = () => {
                   <li><Link to="/recommendations" className="text-white/80 hover:text-white">Recommandations</Link></li>
                 </ul>
               </div>
-              
               <div>
                 <h3 className="font-serif text-lg font-semibold mb-4">Compte</h3>
                 <ul className="space-y-2">
@@ -171,7 +178,6 @@ const Index = () => {
                   <li><Link to="/preferences" className="text-white/80 hover:text-white">Préférences</Link></li>
                 </ul>
               </div>
-              
               <div>
                 <h3 className="font-serif text-lg font-semibold mb-4">À propos</h3>
                 <ul className="space-y-2">
@@ -181,7 +187,7 @@ const Index = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-12 pt-6 border-t border-white/20 text-center text-white/60">
             <p>&copy; {new Date().getFullYear()} Explorateur Culinaire. Tous droits réservés.</p>
           </div>

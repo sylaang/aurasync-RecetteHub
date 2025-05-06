@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -15,21 +14,24 @@ const RecommendationsPage = () => {
     glutenFree: false,
     dairyFree: false,
   });
-  
-  const [showPreferenceEditor, setShowPreferenceEditor] = useState(false);
-  const recommendedRecipes = getRecommendedRecipes(userPreferences);
 
-  // Try to load preferences from localStorage
+  const [showPreferenceEditor, setShowPreferenceEditor] = useState(false);
+  const [recommendedRecipes, setRecommendedRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const savedPreferences = localStorage.getItem('culinaryPreferences');
-    if (savedPreferences) {
+    const fetchRecommended = async () => {
       try {
-        setUserPreferences(JSON.parse(savedPreferences));
+        const recipes = await getRecommendedRecipes(userPreferences);
+        setRecommendedRecipes(recipes);
       } catch (e) {
-        console.error('Failed to parse saved preferences', e);
+        console.error('Erreur lors de la récupération des recettes recommandées', e);
+      } finally {
+        setLoading(false);
       }
-    }
-  }, []);
+    };
+    fetchRecommended();
+  }, [userPreferences]);
 
   const handleSavePreferences = (preferences: UserPreferences) => {
     setUserPreferences(preferences);
@@ -89,7 +91,9 @@ const RecommendationsPage = () => {
             Vos recettes recommandées
           </h2>
           
-          {recommendedRecipes.length > 0 ? (
+          {loading ? (
+            <div>Chargement...</div>
+          ) : recommendedRecipes.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recommendedRecipes.map((recipe) => (
                 <RecipeCard key={recipe.id} recipe={recipe} />

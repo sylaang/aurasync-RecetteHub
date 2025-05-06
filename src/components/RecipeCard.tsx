@@ -11,7 +11,7 @@ interface RecipeCardProps {
 }
 
 const RecipeCard = ({ recipe, className }: RecipeCardProps) => {
-  const { id, title, description, image, prepTime, cookTime, difficulty, rating, dietaryInfo } = recipe;
+  const { id, title, description, image, prepTime, cook_time, difficulty, rating, dietary_info } = recipe;
   
   const getDifficultyColor = () => {
     switch (difficulty) {
@@ -41,10 +41,10 @@ const RecipeCard = ({ recipe, className }: RecipeCardProps) => {
           className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
         />
         <div className="absolute top-2 right-2 flex space-x-1">
-          {dietaryInfo.vegetarian && (
+          {dietary_info.vegetarian && (
             <Badge className="bg-culinary-green text-white hover:bg-culinary-green/90">Végé</Badge>
           )}
-          {dietaryInfo.glutenFree && (
+          {dietary_info.glutenFree && (
             <Badge variant="outline" className="bg-white text-gray-700 border-gray-200">Sans Gluten</Badge>
           )}
         </div>
@@ -56,7 +56,7 @@ const RecipeCard = ({ recipe, className }: RecipeCardProps) => {
           <div className="flex items-center space-x-3">
             <span className="flex items-center">
               <Clock className="h-4 w-4 mr-1" />
-              {prepTime + cookTime} min
+              {prepTime + cook_time} min
             </span>
             <span className={`px-2 py-0.5 rounded text-xs ${getDifficultyColor()}`}>
               {difficulty}

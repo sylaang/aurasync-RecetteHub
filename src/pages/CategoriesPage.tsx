@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
@@ -10,7 +9,7 @@ const CategoriesPage = () => {
       <Navbar />
       
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
+        {/* Section Header */}
         <div className="mb-8">
           <Link 
             to="/" 
@@ -32,9 +31,10 @@ const CategoriesPage = () => {
           {categories.map((category) => (
             <Link 
               key={category.id}
-              to={`/category/${category.id}`}
+              to={`/category/${category.id}`}  // Redirection vers la page de catégorie
               className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow group"
             >
+              {/* Image et description de la catégorie */}
               <div className="relative h-48">
                 <img 
                   src={category.image} 
@@ -46,6 +46,8 @@ const CategoriesPage = () => {
                   <p className="text-white/90">{category.description}</p>
                 </div>
               </div>
+              
+              {/* Texte de lien pour voir les recettes */}
               <div className="p-4 flex justify-end">
                 <span className="inline-flex items-center text-culinary-terracotta group-hover:text-culinary-brown transition-colors">
                   Voir les recettes <ChevronRight className="h-4 w-4 ml-1" />

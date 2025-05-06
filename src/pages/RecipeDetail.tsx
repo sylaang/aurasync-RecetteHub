@@ -1,8 +1,7 @@
-
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, Clock, ChefHat, Users, Star } from "lucide-react";
-import { getRecipeById, Recipe, recipes } from "@/data/recipes";
+import { getRecipeById, getRecipesByCategory, Recipe } from "@/data/recipes";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
@@ -11,28 +10,39 @@ import RecipeCard from "@/components/RecipeCard";
 const RecipeDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
-  const recipe = id ? getRecipeById(id) : undefined;
-  
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [similarRecipes, setSimilarRecipes] = useState<Recipe[]>([]);
+
   useEffect(() => {
-    if (!recipe) {
-      navigate('/');
-    }
+    const fetchRecipe = async () => {
+      if (id) {
+        try {
+          const recipeData = await getRecipeById(id);
+          setRecipe(recipeData);
+
+          // Fetch similar recipes based on categories
+          if (recipeData) {
+            const recipesInCategory = await getRecipesByCategory(recipeData.categories[0]);
+            setSimilarRecipes(recipesInCategory.filter(r => r.id !== id).slice(0, 3));
+          }
+        } catch (error) {
+          console.error('Error fetching recipe:', error);
+          navigate('/'); // Redirect to home page if error occurs
+        }
+      }
+    };
+
+    fetchRecipe();
     window.scrollTo(0, 0);
-  }, [recipe, navigate]);
-  
+  }, [id, navigate]);
+
   if (!recipe) return null;
-  
+
   const { 
-    title, description, image, prepTime, cookTime, servings, 
-    difficulty, ingredients, instructions, dietaryInfo, rating
+    title, description, image, prepTime, cook_time, servings, 
+    difficulty, ingredients, instructions, dietary_info, rating
   } = recipe;
-  
-  // Get similar recipes (recipes in the same category)
-  const similarRecipes = recipes
-    .filter(r => r.id !== id && r.categories.some(cat => recipe.categories.includes(cat)))
-    .slice(0, 3);
-  
+
   const getDifficultyLabel = (level: Recipe['difficulty']) => {
     switch (level) {
       case 'facile': return { label: 'Facile', color: 'bg-green-100 text-green-800' };
@@ -42,7 +52,7 @@ const RecipeDetail = () => {
   };
   
   const difficultyInfo = getDifficultyLabel(difficulty);
-  
+
   return (
     <div className="min-h-screen bg-culinary-beige/30">
       <Navbar />
@@ -91,7 +101,7 @@ const RecipeDetail = () => {
               <ChefHat className="h-5 w-5 text-culinary-terracotta mr-2" />
               <div>
                 <p className="text-sm text-gray-500">Temps de cuisson</p>
-                <p className="font-medium">{cookTime} minutes</p>
+                <p className="font-medium">{cook_time} minutes</p>
               </div>
             </div>
             
@@ -122,20 +132,20 @@ const RecipeDetail = () => {
           </div>
           
           <div className="mt-4 flex flex-wrap gap-2">
-            {dietaryInfo.vegetarian && (
+            {dietary_info.vegetarian && (
               <Badge className="bg-culinary-green text-white hover:bg-culinary-green/90">
                 Végétarien
               </Badge>
             )}
-            {dietaryInfo.vegan && (
+            {dietary_info.vegan && (
               <Badge className="bg-culinary-green text-white hover:bg-culinary-green/90">
                 Végétalien
               </Badge>
             )}
-            {dietaryInfo.glutenFree && (
+            {dietary_info.glutenFree && (
               <Badge variant="outline">Sans Gluten</Badge>
             )}
-            {dietaryInfo.dairyFree && (
+            {dietary_info.dairyFree && (
               <Badge variant="outline">Sans Lactose</Badge>
             )}
           </div>

@@ -10,7 +10,7 @@ interface FeaturedRecipeProps {
 }
 
 const FeaturedRecipe = ({ recipe }: FeaturedRecipeProps) => {
-  const { id, title, description, image, prepTime, cookTime, difficulty, rating, dietaryInfo } = recipe;
+  const { id, title, description, image, prepTime, cook_time, difficulty, rating, dietary_info } = recipe;
   
   return (
     <div className="relative rounded-xl overflow-hidden shadow-lg animate-fade-in">
@@ -28,7 +28,7 @@ const FeaturedRecipe = ({ recipe }: FeaturedRecipeProps) => {
           <Badge className="bg-culinary-terracotta text-white hover:bg-culinary-terracotta/90">
             En Vedette
           </Badge>
-          {dietaryInfo.vegetarian && (
+          {dietary_info.vegetarian && (
             <Badge className="bg-culinary-green text-white hover:bg-culinary-green/90">
               Végétarien
             </Badge>
@@ -45,7 +45,7 @@ const FeaturedRecipe = ({ recipe }: FeaturedRecipeProps) => {
           </div>
           <div className="flex items-center">
             <ChefHat className="h-4 w-4 mr-1" />
-            <span>Cuisson: {cookTime} min</span>
+            <span>Cuisson: {cook_time} min</span>
           </div>
           <div className="flex items-center">
             <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 mr-1" />
